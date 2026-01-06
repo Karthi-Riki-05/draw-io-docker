@@ -1,0 +1,32 @@
+version: '3.5'
+services:
+  drawio:
+    build: .
+    container_name: drawio
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    environment:
+      # Custom settings from previous override
+      - DRAWIO_BASE_URL=http://localhost:8080
+      - DRAWIO_CSP_HEADER=
+      - DRAWIO_VIEWER_URL=
+      - DRAWIO_SELF_CONTAINED=1
+      
+      # Default certificate generation settings
+      - PUBLIC_DNS=localhost
+      - ORGANISATION_UNIT=unit
+      - ORGANISATION=org
+      - CITY=city
+      - STATE=state
+      - COUNTRY_CODE=country
+    volumes:
+      - ./drawio-src/src/main/webapp:/usr/local/tomcat/webapps/draw
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
