@@ -24,26 +24,34 @@ window.isMermaidEnabled = typeof structuredClone === 'function';
 // Path to mermaid folder
 window.mxMermaidPath = window.mxMermaidPath || '/js/mermaid';
 
-// Mermaid to Draw.io bridge function (fallback if mermaid2drawio.js not loaded)
-window.mxMermaidToDrawio = window.mxMermaidToDrawio || function (mermaidCode, callback, errorCallback) {
-	if (typeof mermaid !== 'undefined') {
-		try {
-			var id = 'mermaid-svg-' + Math.random().toString(36).substr(2, 9);
-			mermaid.render(id, mermaidCode).then(function (result) {
-				if (callback) callback(result.svg);
-			}).catch(function (error) {
-				console.error('Mermaid rendering error:', error);
-				if (errorCallback) errorCallback(error);
-			});
-		} catch (e) {
-			console.error('Mermaid error:', e);
-			if (errorCallback) errorCallback(e);
-		}
-	} else {
-		console.error('Mermaid.min.js is not loaded yet.');
-		if (errorCallback) errorCallback(new Error('Mermaid not loaded'));
-	}
+// Minimal mxMermaidToDrawio stub - extensions.min.js will overwrite this with full converter
+// This stub just provides the listener interface so code doesn't break before extensions.min.js loads
+window.mxMermaidToDrawio = function (mermaidCode, callback, errorCallback) {
+	// Stub - will be overwritten by extensions.min.js
+	if (errorCallback) errorCallback(new Error('mxMermaidToDrawio not fully loaded'));
 };
+mxMermaidToDrawio.listeners = [];
+mxMermaidToDrawio.timeouts = [];
+mxMermaidToDrawio.htmlLabels = true;
+mxMermaidToDrawio.addListener = function (callback) {
+	mxMermaidToDrawio.listeners.push(callback);
+	mxMermaidToDrawio.timeouts.push(setTimeout(function () {
+		if (typeof EditorUi !== 'undefined') {
+			callback(EditorUi.prototype.emptyDiagramXml);
+		}
+	}, 5000));
+};
+mxMermaidToDrawio.resetListeners = function () {
+	for (var i = 0; i < mxMermaidToDrawio.timeouts.length; i++) {
+		clearTimeout(mxMermaidToDrawio.timeouts[i]);
+	}
+	mxMermaidToDrawio.listeners = [];
+	mxMermaidToDrawio.timeouts = [];
+};
+
+// AI Generation endpoint - set to your own server for self-hosted AI
+// Uses local AI proxy server running on port 3001
+window.DRAWIO_AI_URL = window.DRAWIO_AI_URL || 'http://localhost:3001/ai/generate';
 
 // CUSTOM_PARAMETERS - URLs for save and export
 // Base URL defines cases where an absolute URL is needed (eg. embedding)

@@ -3,6 +3,15 @@
 
 DRAW_DIR="$CATALINA_HOME/webapps/draw"
 
+# Increase max header size in Tomcat server.xml to prevent "Request header is too large" errors
+TOMCAT_CONF="$CATALINA_HOME/conf/server.xml"
+if [ -f "$TOMCAT_CONF" ]; then
+    echo "Increasing Tomcat max header size..."
+    # Add maxHttpHeaderSize after port="8080" (handles multi-line format)
+    sed -i 's/port="8080"/port="8080" maxHttpHeaderSize="65536"/g' "$TOMCAT_CONF"
+    sed -i 's/port="8443"/port="8443" maxHttpHeaderSize="65536"/g' "$TOMCAT_CONF"
+fi
+
 # Backup user's custom config files BEFORE the original entrypoint overwrites them
 echo "Backing up custom config files..."
 if [ -f "$DRAW_DIR/js/PreConfig.js" ]; then
