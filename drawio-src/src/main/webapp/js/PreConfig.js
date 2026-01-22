@@ -16,7 +16,8 @@ window.urlParams = window.urlParams || {};
 urlParams['dev'] = '1';         // CRITICAL: Loads individual source files instead of app.min.js
 urlParams['test'] = '1';        // Enables experimental features
 urlParams['draw-dev'] = '1';    // Enables internal draw.io dev tools
-urlParams['ui'] = 'sketch';     // AI tools are most prominent in the 'Sketch' theme
+// NOTE: Don't hardcode urlParams['ui'] - let localStorage handle theme persistence
+// The default theme is 'sketch' but users can change it via the Theme menu
 urlParams['ai'] = '1';          // Hard-force AI parameter
 urlParams['analytics'] = '0';   // Disable tracking for dev
 
@@ -26,8 +27,9 @@ window.DRAWIO_CONFIG = {
 	"brandName": "MyDevAI",
 	"enableAi": true,           // Unlocks the "Sparkle" button logic
 	"mermaid": true,            // Required for AI diagram generation
-	"version": Date.now().toString(), // Forces a refresh of settings
-	"override": true,           // Overrides user's previous browser settings
+	// NOTE: Don't use dynamic version or override:true - they reset user settings on every load!
+	// "version": Date.now().toString(), // REMOVED - forces settings reset
+	// "override": true,                 // REMOVED - wipes saved theme preference
 	"showStartScreen": false,   // Skips the "Open/Create" splash screen
 	"defaultLibraries": "general;flowchart;basic;arrows2",
 	"css": ".geItem[title*='About'], .geItem[title*='Help'] { display: none !important; }"

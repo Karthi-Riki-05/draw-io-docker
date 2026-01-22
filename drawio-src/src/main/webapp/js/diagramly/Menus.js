@@ -2018,65 +2018,65 @@
 								// Comment is workaround for file data check in checkFileContent for Electron
 								var dlg = new EmbedDialog(editorUi, '<!-- ' + editorUi.editor.appName + ' diagram -->\n' +
 									html + '\n' + scriptTag + '\n', null, null, function () {
-									try {
-										var wnd = window.open();
+										try {
+											var wnd = window.open();
 
-										if (wnd != null && wnd.document != null) {
-											var doc = wnd.document;
+											if (wnd != null && wnd.document != null) {
+												var doc = wnd.document;
 
-											if (document.compatMode === 'CSS1Compat') {
-												doc.writeln('<!DOCTYPE html>');
+												if (document.compatMode === 'CSS1Compat') {
+													doc.writeln('<!DOCTYPE html>');
+												}
+
+												doc.writeln('<html>');
+												doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
+													'</title><meta charset="utf-8"></head>');
+												doc.writeln('<body>');
+												doc.writeln(html);
+
+												var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
+
+												if (direct) {
+													doc.writeln(scriptTag);
+												}
+
+												doc.writeln('</body>');
+												doc.writeln('</html>');
+												doc.close();
+
+												// Adds script tag after closing page and delay to fix timing issues
+												if (!direct) {
+													var info = wnd.document.createElement('div');
+													info.marginLeft = '26px';
+													info.marginTop = '26px';
+													mxUtils.write(info, mxResources.get('updatingDocument'));
+
+													var img = wnd.document.createElement('img');
+													img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
+														'/' + IMAGE_PATH + '/spin.gif');
+													img.style.marginLeft = '6px';
+													info.appendChild(img);
+
+													wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
+
+													window.setTimeout(function () {
+														var script = document.createElement('script');
+														script.type = 'text/javascript';
+														script.src = /<script.*?src="(.*?)"/.exec(scriptTag)[1];
+														doc.body.appendChild(script);
+
+														info.parentNode.removeChild(info);
+													}, 20);
+												}
 											}
-
-											doc.writeln('<html>');
-											doc.writeln('<head><title>' + encodeURIComponent(mxResources.get('preview')) +
-												'</title><meta charset="utf-8"></head>');
-											doc.writeln('<body>');
-											doc.writeln(html);
-
-											var direct = mxClient.IS_IE || mxClient.IS_EDGE || document.documentMode != null;
-
-											if (direct) {
-												doc.writeln(scriptTag);
-											}
-
-											doc.writeln('</body>');
-											doc.writeln('</html>');
-											doc.close();
-
-											// Adds script tag after closing page and delay to fix timing issues
-											if (!direct) {
-												var info = wnd.document.createElement('div');
-												info.marginLeft = '26px';
-												info.marginTop = '26px';
-												mxUtils.write(info, mxResources.get('updatingDocument'));
-
-												var img = wnd.document.createElement('img');
-												img.setAttribute('src', window.location.protocol + '//' + window.location.hostname +
-													'/' + IMAGE_PATH + '/spin.gif');
-												img.style.marginLeft = '6px';
-												info.appendChild(img);
-
-												wnd.document.body.insertBefore(info, wnd.document.body.firstChild);
-
-												window.setTimeout(function () {
-													var script = document.createElement('script');
-													script.type = 'text/javascript';
-													script.src = /<script.*?src="(.*?)"/.exec(scriptTag)[1];
-													doc.body.appendChild(script);
-
-													info.parentNode.removeChild(info);
-												}, 20);
+											else {
+												editorUi.handleError({ message: mxResources.get('errorUpdatingPreview') });
 											}
 										}
-										else {
-											editorUi.handleError({ message: mxResources.get('errorUpdatingPreview') });
+										catch (e) {
+											editorUi.handleError(e);
 										}
-									}
-									catch (e) {
-										editorUi.handleError(e);
-									}
-								});
+									});
 								editorUi.showDialog(dlg.container, 450, 240, true, true);
 								dlg.init();
 							}), theme);
@@ -2629,6 +2629,7 @@
 		});
 
 		this.put('theme', new Menu(mxUtils.bind(this, function (menu, parent) {
+
 			var theme = (urlParams['sketch'] == '1') ? 'sketch' : mxSettings.getUi();
 
 			var autoItem = menu.addItem(mxResources.get('automatic'), null, function () {
@@ -2650,8 +2651,8 @@
 				(mxUtils.bind(this, function (key) {
 					item = menu.addItem(mxResources.get((key == 'min') ?
 						'minimal' : key), null, function () {
-						editorUi.setCurrentTheme(key);
-					}, parent);
+							editorUi.setCurrentTheme(key);
+						}, parent);
 
 					if (theme == key) {
 						menu.addCheckmark(item, Editor.checkmarkImage);
@@ -2698,14 +2699,14 @@
 						}
 					}), (file.constructor == DriveFile || file.constructor == StorageFile) ?
 						mxResources.get('diagramName') : null, function (name) {
-						if (name != null && name.length > 0) {
-							return true;
-						}
+							if (name != null && name.length > 0) {
+								return true;
+							}
 
-						editorUi.showError(mxResources.get('error'), mxResources.get('invalidName'), mxResources.get('ok'));
+							editorUi.showError(mxResources.get('error'), mxResources.get('invalidName'), mxResources.get('ok'));
 
-						return false;
-					}, null, FilenameDialog.filenameHelpLink, null, null, editorUi.editor.fileExtensions);
+							return false;
+						}, null, FilenameDialog.filenameHelpLink, null, null, editorUi.editor.fileExtensions);
 					this.editorUi.showDialog(dlg.container, 340, 100, true, true);
 					dlg.init();
 				}
@@ -3719,6 +3720,7 @@
 		var langMenu = this.get('language');
 
 		this.put('extras', new Menu(mxUtils.bind(this, function (menu, parent) {
+
 			// Compatiblity code for live UI switch and static UI
 			if (Editor.currentTheme == 'simple' ||
 				Editor.currentTheme == 'sketch' ||
@@ -4289,21 +4291,21 @@
 					[mxConstants.STYLE_FONTFAMILY, 'fontSource', 'FType'],
 					[fontName, (fontUrl != null) ? encodeURIComponent(fontUrl) : null, null],
 					null, parent, function () {
-					graph.setFont(fontName, fontUrl);
-					editorUi.fireEvent(new mxEventObject('styleChanged',
-						'keys', [mxConstants.STYLE_FONTFAMILY, 'fontSource', 'FType'],
-						'values', [fontName, (fontUrl != null) ? encodeURIComponent(fontUrl) : null, null],
-						'cells', [graph.cellEditor.getEditingCell()]));
-				}, function () {
-					graph.updateLabelElements(graph.getSelectionCells(), function (elt) {
-						elt.removeAttribute('face');
-						elt.style.fontFamily = null;
+						graph.setFont(fontName, fontUrl);
+						editorUi.fireEvent(new mxEventObject('styleChanged',
+							'keys', [mxConstants.STYLE_FONTFAMILY, 'fontSource', 'FType'],
+							'values', [fontName, (fontUrl != null) ? encodeURIComponent(fontUrl) : null, null],
+							'cells', [graph.cellEditor.getEditingCell()]));
+					}, function () {
+						graph.updateLabelElements(graph.getSelectionCells(), function (elt) {
+							elt.removeAttribute('face');
+							elt.style.fontFamily = null;
 
-						if (elt.nodeName == 'PRE') {
-							graph.replaceElement(elt, 'div');
-						}
+							if (elt.nodeName == 'PRE') {
+								graph.replaceElement(elt, 'div');
+							}
+						});
 					});
-				});
 
 				if (deletable) {
 					var img = document.createElement('img');

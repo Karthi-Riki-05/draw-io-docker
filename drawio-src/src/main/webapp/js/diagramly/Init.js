@@ -7,7 +7,7 @@
 window.urlParams = window.urlParams || {};
 
 // Force sketch UI mode to avoid Simple.js dependency
-window.urlParams['ui'] = window.urlParams['ui'] || 'sketch';
+window.urlParams['ui'] = window.urlParams['ui'];
 
 // isLocalStorage controls access to local storage
 window.isLocalStorage = window.isLocalStorage || false;
@@ -287,7 +287,6 @@ function setCurrentXml(data, filename) {
  */
 window.uiTheme = window.uiTheme || (function () {
 	var ui = urlParams['ui'];
-
 	//Use Sketch theme for MS Teams (and any future extAuth) by default
 	if (urlParams['extAuth'] == '1') {
 		ui = 'sketch';
@@ -308,6 +307,7 @@ window.uiTheme = window.uiTheme || (function () {
 			isLocalStorage = false;
 		}
 	}
+	console.log(ui, '----------------------------');
 
 	// Redirects dark UI parameter
 	if (urlParams['ui'] == 'dark' && urlParams['dark'] == null) {
@@ -321,6 +321,7 @@ window.uiTheme = window.uiTheme || (function () {
 	}
 
 	return ui;
+
 })();
 
 /**

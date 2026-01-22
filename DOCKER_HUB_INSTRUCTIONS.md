@@ -2,11 +2,10 @@
 
 Prebuilt images are available on Docker Hub under the `kart008` account.
 
-Pull the versioned images:
+Pull the versioned image:
 
 ```powershell
 docker pull kart008/drawio-custom:v1.0.0
-docker pull kart008/drawio-custom-ai-proxy:v1.0.0
 ```
 
 Start using the images with Docker Compose (this `docker-compose.yml` references the versioned images):
@@ -16,11 +15,10 @@ docker compose pull
 docker compose up -d
 ```
 
-Or run the containers directly:
+Or run the container directly:
 
 ```powershell
 docker run -d --name drawio -p 8080:8080 -p 8443:8443 kart008/drawio-custom:v1.0.0
-docker run -d --name drawio-ai-proxy -p 3001:3001 kart008/drawio-custom-ai-proxy:v1.0.0
 ```
 
 Notes:

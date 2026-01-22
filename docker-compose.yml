@@ -29,13 +29,3 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
-
-  ai-proxy:
-    image: kart008/drawio-custom-ai-proxy:v1.0.0
-    container_name: drawio-ai-proxy
-    restart: unless-stopped
-    ports:
-      - "3001:3001"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - PORT=3001

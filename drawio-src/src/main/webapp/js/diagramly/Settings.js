@@ -11,246 +11,195 @@ var mxSettings =
 	 * Defines current version of settings.
 	 */
 	currentVersion: 18,
-	
+
 	defaultFormatWidth: (screen.width < 600) ? '0' : '240',
-	
+
 	// NOTE: Hardcoded in index.html due to timing of JS loading
 	key: Editor.settingsKey,
 
-	getLanguage: function()
-	{
+	getLanguage: function () {
 		return mxSettings.settings.language;
 	},
-	setLanguage: function(lang)
-	{
+	setLanguage: function (lang) {
 		mxSettings.settings.language = lang;
 	},
-	isMainSettings: function()
-	{
+	isMainSettings: function () {
 		return mxSettings.key == '.drawio-config';
 	},
-	getMainSettings: function()
-	{
+	getMainSettings: function () {
 		var value = localStorage.getItem('.drawio-config');
 
-		if (value == null)
-		{
+		if (value == null) {
 			value = mxSettings.getDefaults();
 			delete value.isNew;
 		}
-		else
-		{
+		else {
 			value = JSON.parse(value);
 			value.version = mxSettings.currentVersion;
 		}
 
 		return value;
 	},
-	getUi: function()
-	{
+	getUi: function () {
+		console.log(mxSettings.isMainSettings(), Editor.settingsKey, mxSettings, 'iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii');
 		return (mxSettings.isMainSettings()) ? mxSettings.settings.ui :
 			mxSettings.getMainSettings().ui;
 	},
-	setUi: function(ui)
-	{
-		if (mxSettings.isMainSettings())
-		{
+	setUi: function (ui) {
+		console.log(mxSettings.isMainSettings(), 'oooooooooooooooooooooooo');
+		if (mxSettings.isMainSettings()) {
 			mxSettings.settings.ui = ui;
 			mxSettings.save();
 		}
-		else
-		{
+		else {
 			var value = mxSettings.getMainSettings();
 			value.ui = ui;
 			localStorage.setItem('.drawio-config', JSON.stringify(value));
 		}
 	},
-	getShowStartScreen: function()
-	{
+	getShowStartScreen: function () {
 		return mxSettings.settings.showStartScreen;
 	},
-	setShowStartScreen: function(showStartScreen)
-	{
+	setShowStartScreen: function (showStartScreen) {
 		mxSettings.settings.showStartScreen = showStartScreen;
 	},
-	getGridColor: function(darkMode)
-	{
+	getGridColor: function (darkMode) {
 		var result = (darkMode) ? mxSettings.settings.darkGridColor :
 			mxSettings.settings.gridColor;
 
-		if (mxUtils.isLightDarkColor(result))
-		{
+		if (mxUtils.isLightDarkColor(result)) {
 			var ld = mxUtils.getLightDarkColor(result);
 			result = (darkMode) ? ld.dark : ld.light;
 		}
 
 		return result;
 	},
-	setGridColor: function(gridColor, darkMode)
-	{
-		if (darkMode)
-		{
+	setGridColor: function (gridColor, darkMode) {
+		if (darkMode) {
 			mxSettings.settings.darkGridColor = gridColor;
 		}
-		else
-		{
+		else {
 			mxSettings.settings.gridColor = gridColor;
 		}
 	},
-	getAutosave: function()
-	{
+	getAutosave: function () {
 		return mxSettings.settings.autosave;
 	},
-	setAutosave: function(autosave)
-	{
+	setAutosave: function (autosave) {
 		mxSettings.settings.autosave = autosave;
 	},
-	getResizeImages: function()
-	{
+	getResizeImages: function () {
 		return mxSettings.settings.resizeImages;
 	},
-	setResizeImages: function(resizeImages)
-	{
+	setResizeImages: function (resizeImages) {
 		mxSettings.settings.resizeImages = resizeImages;
 	},
-	getOpenCounter: function()
-	{
+	getOpenCounter: function () {
 		return mxSettings.settings.openCounter;
 	},
-	setOpenCounter: function(openCounter)
-	{
+	setOpenCounter: function (openCounter) {
 		mxSettings.settings.openCounter = openCounter;
 	},
-	setCustomFonts: function(fonts)
-	{
+	setCustomFonts: function (fonts) {
 		mxSettings.settings.customFonts = fonts;
 	},
-	getCustomFonts: function()
-	{
+	getCustomFonts: function () {
 		//Convert from old format to the new one
 		var custFonts = mxSettings.settings.customFonts || [];
-		
-		for (var i = 0 ; i < custFonts.length; i++)
-		{
-			if (typeof custFonts[i] === 'string')
-			{
-				custFonts[i] = {name: custFonts[i], url: null};
+
+		for (var i = 0; i < custFonts.length; i++) {
+			if (typeof custFonts[i] === 'string') {
+				custFonts[i] = { name: custFonts[i], url: null };
 			}
 		}
-		
+
 		return custFonts;
 	},
-	getLibraries: function()
-	{
+	getLibraries: function () {
 		return mxSettings.settings.libraries;
 	},
-	setLibraries: function(libs)
-	{
+	setLibraries: function (libs) {
 		mxSettings.settings.libraries = libs;
 	},
-	addCustomLibrary: function(id)
-	{
+	addCustomLibrary: function (id) {
 		// Makes sure to update the latest data from the localStorage
 		mxSettings.load();
-		
+
 		//If the setting is incorrect, reset it to an empty array
-		if (!Array.isArray(mxSettings.settings.customLibraries))
-		{
+		if (!Array.isArray(mxSettings.settings.customLibraries)) {
 			mxSettings.settings.customLibraries = [];
 		}
-		
-		if (mxUtils.indexOf(mxSettings.settings.customLibraries, id) < 0)
-		{
+
+		if (mxUtils.indexOf(mxSettings.settings.customLibraries, id) < 0) {
 			// Makes sure scratchpad is below search in sidebar
-			if (id === 'L.scratchpad')
-			{
+			if (id === 'L.scratchpad') {
 				mxSettings.settings.customLibraries.splice(0, 0, id);
 			}
-			else
-			{
+			else {
 				mxSettings.settings.customLibraries.push(id);
 			}
 		}
-		
+
 		mxSettings.save();
 	},
-	removeCustomLibrary: function(id)
-	{
+	removeCustomLibrary: function (id) {
 		// Makes sure to update the latest data from the localStorage
 		mxSettings.load();
 		mxUtils.remove(id, mxSettings.settings.customLibraries);
 		mxSettings.save();
 	},
-	getCustomLibraries: function()
-	{
+	getCustomLibraries: function () {
 		return mxSettings.settings.customLibraries;
 	},
-	getPlugins: function()
-	{
+	getPlugins: function () {
 		return mxSettings.settings.plugins;
 	},
-	setPlugins: function(plugins)
-	{
+	setPlugins: function (plugins) {
 		mxSettings.settings.plugins = plugins;
 	},
-	getRecentColors: function()
-	{
+	getRecentColors: function () {
 		return mxSettings.settings.recentColors;
 	},
-	setRecentColors: function(recentColors)
-	{
+	setRecentColors: function (recentColors) {
 		mxSettings.settings.recentColors = recentColors;
 	},
-	getFormatWidth: function()
-	{
+	getFormatWidth: function () {
 		return parseInt(mxSettings.settings.formatWidth);
 	},
-	setFormatWidth: function(formatWidth)
-	{
+	setFormatWidth: function (formatWidth) {
 		mxSettings.settings.formatWidth = formatWidth;
 	},
-	isCreateTarget: function()
-	{
+	isCreateTarget: function () {
 		return mxSettings.settings.createTarget;
 	},
-	setCreateTarget: function(value)
-	{
+	setCreateTarget: function (value) {
 		mxSettings.settings.createTarget = value;
 	},
-	getPageFormat: function()
-	{
+	getPageFormat: function () {
 		return mxSettings.settings.pageFormat;
 	},
-	setPageFormat: function(value)
-	{
+	setPageFormat: function (value) {
 		mxSettings.settings.pageFormat = value;
 	},
-	getUnit: function()
-	{
+	getUnit: function () {
 		return mxSettings.settings.unit || mxConstants.POINTS;
 	},
-	setUnit: function(value)
-	{
+	setUnit: function (value) {
 		mxSettings.settings.unit = value;
 	},
-	isRulerOn: function()
-	{
+	isRulerOn: function () {
 		return mxSettings.settings.isRulerOn;
 	},
-	setRulerOn: function(value)
-	{
+	setRulerOn: function (value) {
 		mxSettings.settings.isRulerOn = value;
 	},
-	getDraftSaveDelay: function()
-	{
+	getDraftSaveDelay: function () {
 		return mxSettings.settings.draftSaveDelay;
 	},
-	setDraftSaveDelay: function(value)
-	{
+	setDraftSaveDelay: function (value) {
 		mxSettings.settings.draftSaveDelay = value;
 	},
-	getDefaults: function()
-	{
+	getDefaults: function () {
 		return {
 			language: '',
 			configVersion: Editor.configVersion,
@@ -277,134 +226,105 @@ var mxSettings =
 			isRulerOn: false
 		};
 	},
-	init: function()
-	{
+	init: function () {
 		mxSettings.settings = mxSettings.getDefaults();
 	},
-	save: function()
-	{
-		if (isLocalStorage && typeof(JSON) !== 'undefined')
-		{
-			try
-			{
+	save: function () {
+		if (isLocalStorage && typeof (JSON) !== 'undefined') {
+			try {
 				delete mxSettings.settings.isNew;
 				mxSettings.settings.version = mxSettings.currentVersion;
 				localStorage.setItem(mxSettings.key, JSON.stringify(mxSettings.settings));
 			}
-			catch (e)
-			{
+			catch (e) {
 				// ignores quota exceeded
 			}
 		}
 	},
-	load: function()
-	{
-		try
-		{
-			if (isLocalStorage && typeof(JSON) !== 'undefined')
-			{
+	load: function () {
+		try {
+			if (isLocalStorage && typeof (JSON) !== 'undefined') {
 				mxSettings.parse(localStorage.getItem(mxSettings.key));
 			}
 		}
-		catch (e)
-		{
-			if (window.console != null)
-			{
+		catch (e) {
+			if (window.console != null) {
 				console.log('Error loading settings:', mxSettings.key, e);
 			}
 		}
 
-		if (mxSettings.settings == null)
-		{
+		if (mxSettings.settings == null) {
 			mxSettings.init();
 		}
 	},
-	parse: function(value)
-	{
+	parse: function (value) {
 		var config = (value != null) ? JSON.parse(value) : null;
 
 		if (config == null || (config.configVersion != Editor.configVersion) ||
-			(Editor.config != null && Editor.config.override))
-		{
+			(Editor.config != null && Editor.config.override)) {
 			mxSettings.settings = null;
 			mxSettings.init();
 		}
-		else
-		{
+		else {
 			mxSettings.settings = config;
-			
-			if (mxSettings.settings.plugins == null)
-			{
+
+			if (mxSettings.settings.plugins == null) {
 				mxSettings.settings.plugins = [];
 			}
-			
-			if (mxSettings.settings.recentColors == null)
-			{
+
+			if (mxSettings.settings.recentColors == null) {
 				mxSettings.settings.recentColors = [];
 			}
 
-			if (mxSettings.settings.customFonts == null)
-			{
+			if (mxSettings.settings.customFonts == null) {
 				mxSettings.settings.customFonts = [];
 			}
-			
-			if (mxSettings.settings.libraries == null)
-			{
+
+			if (mxSettings.settings.libraries == null) {
 				mxSettings.settings.libraries = Sidebar.prototype.defaultEntries;
 			}
-			
-			if (mxSettings.settings.customLibraries == null)
-			{
+
+			if (mxSettings.settings.customLibraries == null) {
 				mxSettings.settings.customLibraries = Editor.defaultCustomLibraries;
 			}
-			
-			if (mxSettings.settings.ui == null)
-			{
+
+			if (mxSettings.settings.ui == null) {
 				mxSettings.settings.ui = '';
 			}
-			
-			if (mxSettings.settings.formatWidth == null)
-			{
+
+			if (mxSettings.settings.formatWidth == null) {
 				mxSettings.settings.formatWidth = mxSettings.defaultFormatWidth;
 			}
-			
-			if (mxSettings.settings.lastAlert != null)
-			{
+
+			if (mxSettings.settings.lastAlert != null) {
 				delete mxSettings.settings.lastAlert;
 			}
-			
-			if (mxSettings.settings.createTarget == null)
-			{
+
+			if (mxSettings.settings.createTarget == null) {
 				mxSettings.settings.createTarget = false;
 			}
-			
-			if (mxSettings.settings.pageFormat == null)
-			{
+
+			if (mxSettings.settings.pageFormat == null) {
 				mxSettings.settings.pageFormat = mxGraph.prototype.pageFormat;
 			}
-			
-			if (mxSettings.settings.search == null)
-			{
+
+			if (mxSettings.settings.search == null) {
 				mxSettings.settings.search = true;
 			}
-			
-			if (mxSettings.settings.showStartScreen == null)
-			{
+
+			if (mxSettings.settings.showStartScreen == null) {
 				mxSettings.settings.showStartScreen = false;
 			}
-			
-			if (mxSettings.settings.gridColor == null)
-			{
+
+			if (mxSettings.settings.gridColor == null) {
 				mxSettings.settings.gridColor = mxGraphView.prototype.defaultGridColor;
 			}
 
-			if (mxSettings.settings.darkGridColor == null)
-			{
+			if (mxSettings.settings.darkGridColor == null) {
 				mxSettings.settings.darkGridColor = mxGraphView.prototype.defaultDarkGridColor;
 			}
-			
-			if (mxSettings.settings.autosave == null)
-			{
+
+			if (mxSettings.settings.autosave == null) {
 				mxSettings.settings.autosave = !EditorUi.isElectronApp;
 			}
 			else if (EditorUi.isElectronApp && localStorage.getItem('._autoSaveTrans_') == null) //Transition to no autosave
@@ -413,17 +333,14 @@ var mxSettings =
 				mxSettings.settings.autosave = false;
 				mxSettings.save();
 			}
-			
-			if (mxSettings.settings.scratchpadSeen != null)
-			{
+
+			if (mxSettings.settings.scratchpadSeen != null) {
 				delete mxSettings.settings.scratchpadSeen;
 			}
 		}
 	},
-	clear: function() 
-	{
-		if (isLocalStorage)
-		{
+	clear: function () {
+		if (isLocalStorage) {
 			localStorage.removeItem(mxSettings.key);
 		}
 	}
@@ -440,8 +357,7 @@ var mxSettings =
  * </script>
  * (end)
  */
-if (typeof(mxLoadSettings) == 'undefined' || mxLoadSettings)
-{
+if (typeof (mxLoadSettings) == 'undefined' || mxLoadSettings) {
 	// Loads initial content
 	mxSettings.load();
 }

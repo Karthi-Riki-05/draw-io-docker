@@ -1,0 +1,50 @@
+name: Deploy Draw.io to Lightsail
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install Lightsail Control Plugin
+        run: |
+          curl "https://s3.us-west-2.amazonaws.com/lightsailctl/latest/linux-amd64/lightsailctl" -o "lightsailctl"
+          chmod +x lightsailctl
+          sudo mv lightsailctl /usr/local/bin/
+
+      - name: Build Draw.io Image
+        # We run build from '.' (root) so Docker can see drawio-src/ and custom-entrypoint.sh
+        run: docker build -t drawio-app:latest .
+
+      - name: Push to Lightsail
+        run: |
+          aws lightsail push-container-image \
+            --service-name ${{ secrets.LIGHTSAIL_SERVICE_NAME }} \
+            --label drawio-deploy \
+            --image drawio-app:latest
+
+      - name: Deploy to Lightsail
+        run: |
+          IMAGE_NAME=$(aws lightsail get-container-images --service-name ${{ secrets.LIGHTSAIL_SERVICE_NAME }} | jq -r '.containerImages | .[] | select(.image | contains("drawio-deploy")) | .image' | head -n 1)
+          
+          aws lightsail create-container-service-deployment \
+            --service-name ${{ secrets.LIGHTSAIL_SERVICE_NAME }} \
+            --containers "{
+              \"drawio-app\": {
+                \"image\": \"$IMAGE_NAME\",
+                \"ports\": {\"8080\": \"HTTP\"}
+              }
+            }" \
+            --public-endpoint "{\"containerName\": \"drawio-app\", \"containerPort\": 8080}"
