@@ -1,5 +1,5 @@
 # Use the official image as base
-ARG BASE_IMAGE=local/jgraph-drawio:latest
+ARG BASE_IMAGE=kart008/drawio-custom:v1.0.0
 FROM ${BASE_IMAGE}
 
 # Standard tomcat location
