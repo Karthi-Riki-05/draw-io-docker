@@ -1,7 +1,9 @@
 version: '3.5'
 services:
   drawio:
-    image: kart008/drawio-custom:v1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: drawio
     restart: unless-stopped
     ports:

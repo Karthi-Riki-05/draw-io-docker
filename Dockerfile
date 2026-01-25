@@ -1,5 +1,6 @@
 # Use the official image as base
-FROM jgraph/drawio:latest
+ARG BASE_IMAGE=local/jgraph-drawio:latest
+FROM ${BASE_IMAGE}
 
 # Standard tomcat location
 WORKDIR /usr/local/tomcat/webapps/draw
